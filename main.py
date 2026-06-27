@@ -7,9 +7,10 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import razorpay
@@ -34,7 +35,19 @@ DB_PASS = os.getenv('DB_PASSWORD', '')
 # Static image storage
 STATIC_DIR = Path(__file__).parent / 'static' / 'images'
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
-BASE_URL    = os.getenv('BASE_URL', 'http://localhost:8010')
+BASE_URL    = os.getenv('BASE_URL', 'http://localhost:2025')
+
+# ── Hardcoded admin user ────────────────────────────────────────────────────────
+ADMIN_EMAIL         = 'admin@hellobmg.com'
+ADMIN_PASSWORD_HASH = hashlib.sha256('HelloBMG@2025'.encode()).hexdigest()
+
+_active_tokens: set[str] = set()
+
+_security = HTTPBearer()
+
+def require_admin(credentials: HTTPAuthorizationCredentials = Depends(_security)):
+    if credentials.credentials not in _active_tokens:
+        raise HTTPException(status_code=401, detail='Invalid or expired session. Please sign in.')
 
 # ── App setup ──────────────────────────────────────────────────────────────────
 app = FastAPI(title='HelloBMG Backend', version='2.0.0')
@@ -90,6 +103,24 @@ class VerifyRequest(BaseModel):
     razorpay_payment_id: str
     razorpay_order_id: str
     razorpay_signature: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+@app.post('/admin/login')
+async def admin_login(payload: LoginRequest):
+    pw_hash = hashlib.sha256(payload.password.encode()).hexdigest()
+    if payload.email.strip().lower() != ADMIN_EMAIL or pw_hash != ADMIN_PASSWORD_HASH:
+        raise HTTPException(status_code=401, detail='Invalid email or password')
+    token = str(uuid.uuid4())
+    _active_tokens.add(token)
+    return {'token': token, 'email': ADMIN_EMAIL}
+
+@app.post('/admin/logout')
+async def admin_logout(credentials: HTTPAuthorizationCredentials = Depends(_security)):
+    _active_tokens.discard(credentials.credentials)
+    return {'status': 'logged out'}
 
 @app.get('/health')
 async def health():
@@ -188,7 +219,7 @@ async def list_brands():
         db.close()
 
 @app.post('/admin/brands')
-async def create_brand(payload: BrandCreate):
+async def create_brand(payload: BrandCreate, _: str = Depends(require_admin)):
     db = get_db()
     try:
         with db.cursor() as cur:
@@ -215,7 +246,7 @@ async def list_categories():
         db.close()
 
 @app.post('/admin/categories')
-async def create_category(payload: CategoryCreate):
+async def create_category(payload: CategoryCreate, _: str = Depends(require_admin)):
     db = get_db()
     try:
         with db.cursor() as cur:
@@ -243,7 +274,7 @@ class ProductCreate(BaseModel):
     stock_status: Optional[str] = 'in_stock'
 
 @app.post('/admin/products')
-async def create_product(payload: ProductCreate):
+async def create_product(payload: ProductCreate, _: str = Depends(require_admin)):
     db = get_db()
     try:
         with db.cursor() as cur:
@@ -270,7 +301,8 @@ async def create_product(payload: ProductCreate):
 async def upload_product_image(
     product_id: str,
     file: UploadFile = File(...),
-    is_primary: bool = Form(True)
+    is_primary: bool = Form(True),
+    _: str = Depends(require_admin),
 ):
     content = await file.read()
     ext     = (file.filename or 'image').rsplit('.', 1)[-1].lower() or 'jpg'
@@ -303,7 +335,7 @@ class StockUpdate(BaseModel):
     stock_status: Optional[str] = None
 
 @app.patch('/admin/products/{product_id}/stock')
-async def update_stock(product_id: str, payload: StockUpdate):
+async def update_stock(product_id: str, payload: StockUpdate, _: str = Depends(require_admin)):
     db = get_db()
     try:
         with db.cursor() as cur:
@@ -321,7 +353,7 @@ async def update_stock(product_id: str, payload: StockUpdate):
 
 # ── Admin: Bulk XLSX ───────────────────────────────────────────────────────────
 @app.post('/admin/products/bulk-xlsx')
-async def bulk_upload_xlsx(file: UploadFile = File(...)):
+async def bulk_upload_xlsx(file: UploadFile = File(...), _: str = Depends(require_admin)):
     content = await file.read()
     wb = load_workbook(BytesIO(content))
     ws = wb.active
@@ -433,4 +465,4 @@ async def bulk_upload_xlsx(file: UploadFile = File(...)):
     finally:
         db.close()
 
-# Run: uvicorn main:app --host 0.0.0.0 --port 8010 --reload
+# Run: uvicorn main:app --host 0.0.0.0 --port 2025 --reload
