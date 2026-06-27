@@ -24,7 +24,7 @@ load_dotenv()
 # ── Config ─────────────────────────────────────────────────────────────────────
 RAZORPAY_KEY_ID     = os.getenv('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET')
-ALLOWED_ORIGINS     = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8000').split(',')
+ALLOWED_ORIGINS     = os.getenv('ALLOWED_ORIGINS', 'http://localhost:2025').split(',')
 
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = int(os.getenv('DB_PORT', '3306'))
