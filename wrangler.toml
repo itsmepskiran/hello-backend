@@ -1,0 +1,30 @@
+name            = "hellobmg-api"
+main            = "src/index.ts"
+compatibility_date = "2026-06-27"
+
+# ── KV: session tokens (24-hour TTL per token) ─────────────────────────────────
+[[kv_namespaces]]
+binding     = "SESSIONS"
+id          = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# ── R2: product images ──────────────────────────────────────────────────────────
+[[r2_buckets]]
+binding     = "IMAGES"
+bucket_name = "hellobmg-images"
+
+# ── D1: main database ───────────────────────────────────────────────────────────
+[[d1_databases]]
+binding       = "DB"
+database_name = "hellobmg"
+database_id   = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# ── Public vars (non-secret) ────────────────────────────────────────────────────
+# After deploying, set BASE_URL to your actual workers.dev URL:
+#   https://hellobmg-api.<your-subdomain>.workers.dev
+[vars]
+BASE_URL = "http://localhost:8787"
+
+# ── Secrets (set via CLI — never put values here) ──────────────────────────────
+# wrangler secret put RAZORPAY_KEY_ID
+# wrangler secret put RAZORPAY_KEY_SECRET

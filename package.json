@@ -1,0 +1,20 @@
+{
+  "name": "hellobmg-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply hellobmg --local",
+    "db:migrate:remote": "wrangler d1 migrations apply hellobmg --remote",
+    "db:seed:local": "wrangler d1 execute hellobmg --local --file=migrations/0001_schema.sql"
+  },
+  "dependencies": {
+    "hono": "^4.7.11"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260101.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.0.0"
+  }
+}

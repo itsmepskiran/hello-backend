@@ -1,19 +1,22 @@
-# Python
+# Node / Worker
+node_modules/
+dist/
+.wrangler/
+
+# Local dev secrets (wrangler reads .dev.vars automatically)
+.dev.vars
+
+# Environment / secrets (legacy Python)
+.env
+*.env.local
+
+# Python (legacy — no longer used)
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-
-# Virtual environment
 venv/
 .venv/
-env/
-
-# Environment / secrets
-.env
-*.env.local
-
-# Uploaded product images (runtime-generated)
 static/images/
 
 # macOS

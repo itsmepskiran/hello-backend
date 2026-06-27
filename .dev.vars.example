@@ -1,0 +1,8 @@
+# Copy to .dev.vars for local development (wrangler dev reads this automatically)
+# Never commit .dev.vars — it is gitignored
+
+RAZORPAY_KEY_ID=rzp_test_XXXXXXXXXXXXXXXX
+RAZORPAY_KEY_SECRET=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# BASE_URL is set in wrangler.toml for local dev; override here if needed
+# BASE_URL=http://localhost:8787
