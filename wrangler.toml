@@ -5,7 +5,7 @@ compatibility_date = "2026-06-27"
 # ── KV: session tokens (24-hour TTL per token) ─────────────────────────────────
 [[kv_namespaces]]
 binding     = "SESSIONS"
-id          = "REPLACE_WITH_KV_NAMESPACE_ID"
+id          = "65fe41fd182c4492b74492a8107f9ce8"
 
 # ── R2: product images ──────────────────────────────────────────────────────────
 [[r2_buckets]]
@@ -16,7 +16,7 @@ bucket_name = "hellobmg-images"
 [[d1_databases]]
 binding       = "DB"
 database_name = "hellobmg"
-database_id   = "REPLACE_WITH_D1_DATABASE_ID"
+database_id   = "7133c4a4-c656-468e-9b2a-6e7f4461551c"
 migrations_dir = "migrations"
 
 # ── Public vars (non-secret) ────────────────────────────────────────────────────
