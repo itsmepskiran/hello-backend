@@ -278,6 +278,21 @@ app.patch('/admin/products/:productId/stock', requireAdmin, async (c) => {
   return c.json({ status: 'ok' })
 })
 
+// ── Admin: Stock overview (all products, incl. inactive) ──────────────────────
+app.get('/admin/stock', requireAdmin, async (c) => {
+  const { results } = await c.env.DB.prepare(`
+    SELECT
+      p.id, p.title, p.price, p.mrp, p.stock, p.stock_status, p.is_active,
+      b.name   AS brand_name,
+      cat.name AS category_name
+    FROM products p
+    LEFT JOIN brands b      ON b.id   = p.brand_id
+    LEFT JOIN categories cat ON cat.id = p.category_id
+    ORDER BY p.title ASC
+  `).all<Record<string, unknown>>()
+  return c.json(results)
+})
+
 // ── Admin: Bulk JSON (XLSX parsed client-side, sent as JSON array) ─────────────
 app.post('/admin/products/bulk-json', requireAdmin, async (c) => {
   const { products } = await c.req.json<{ products: Record<string, unknown>[] }>()
