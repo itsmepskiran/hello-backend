@@ -21,7 +21,7 @@ migrations_dir = "migrations"
 
 # ── Public vars (non-secret) ────────────────────────────────────────────────────
 # After deploying, set BASE_URL to your actual workers.dev URL:
-#   https://hellobmg-api.<your-subdomain>.workers.dev
+#   https://hellobmg-api.skreenit.workers.dev
 [vars]
 BASE_URL = "http://localhost:8787"
 
