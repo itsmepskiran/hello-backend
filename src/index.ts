@@ -22,7 +22,7 @@ const ADMIN_PASSWORD = 'HelloBMG@2025'
 const app = new Hono<AppEnv>()
 
 app.use('*', cors({
-  origin:         '*',
+  origin:         (origin) => origin ?? '*',   // echo back requesting origin (required when Authorization header is present)
   allowMethods:   ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders:   ['Content-Type', 'Authorization'],
   exposeHeaders:  ['Content-Length'],
