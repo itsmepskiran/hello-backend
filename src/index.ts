@@ -220,7 +220,8 @@ app.post('/admin/products/:productId/images', requireAdmin, async (c) => {
     httpMetadata: { contentType: file.type || 'image/jpeg' },
   })
 
-  const publicUrl = `${c.env.BASE_URL}/images/${key}`
+  const origin    = new URL(c.req.url).origin
+  const publicUrl = `${origin}/images/${key}`
   const db        = c.env.DB
 
   if (isPrimary) {
